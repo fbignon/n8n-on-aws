@@ -2,6 +2,51 @@ provider "aws" {
   region = var.aws_region
 }
 
+resource "aws_iam_role" "n8n_s3_access" {
+  name = "n8n-s3-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "n8n_s3_policy" {
+  name = "n8n-s3-access"
+  role = aws_iam_role.n8n_s3_access.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:ListBucket",
+          "s3:GetObject",
+          "s3:PutObject"
+        ],
+        Resource = [
+          "arn:aws:s3:::n8n-volume-persistencia",
+          "arn:aws:s3:::n8n-volume-persistencia/*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_instance_profile" "n8n_instance_profile" {
+  name = "n8n-instance-profile"
+  role = aws_iam_role.n8n_s3_access.name
+}
+
 resource "aws_security_group" "n8n_sg" {
   name        = local.security_group_name
   description = "Allow HTTP, SSH, and n8n"
@@ -42,6 +87,7 @@ resource "aws_instance" "n8n" {
   vpc_security_group_ids      = [aws_security_group.n8n_sg.id]
   associate_public_ip_address = true
   user_data                   = file("${path.module}/../ec2-user-data.sh")
+  iam_instance_profile        = aws_iam_instance_profile.n8n_instance_profile.name
 
   tags = merge(
     {
