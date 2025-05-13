@@ -1,0 +1,34 @@
+# Arquivos de ambiente e credenciais
+.env
+*.pem
+*.key
+*.crt
+
+# SSH
+~/.ssh/
+id_rsa
+id_rsa.pub
+
+# Docker
+**/n8n_data/
+docker-compose.override.yml
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.crc
+terraform.tfvars
+terraform.tfvars.json
+
+# Logs
+*.log
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Backup/temporários
+*~
+*.bak
+*.swp
