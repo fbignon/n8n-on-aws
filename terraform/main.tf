@@ -2,6 +2,19 @@ provider "aws" {
   region = var.aws_region
 }
 
+resource "aws_s3_bucket" "n8n_data" {
+  bucket = "n8n-volume-persistencia"
+  force_destroy = true
+
+  tags = merge(
+    {
+      Name = "n8n-s3-volume"
+    },
+    local.common_tags
+  )
+}
+
+
 resource "aws_iam_role" "n8n_s3_access" {
   name = "n8n-s3-role"
 
