@@ -1,24 +1,52 @@
 #!/bin/bash
 
-# Atualiza pacotes e instala Docker
-apt-get update -y
-apt-get install -y docker.io git curl
+# Função para instalar Docker e Compose no Amazon Linux 2
+install_amazon_linux() {
+  echo "🔧 Detecção: Amazon Linux"
+  yum update -y
+  amazon-linux-extras install docker -y
+  service docker start
+  usermod -aG docker ec2-user
+  chkconfig docker on
 
-# Inicia e habilita o serviço Docker
-systemctl start docker
-systemctl enable docker
-usermod -aG docker ubuntu
-
-# Instala Docker Compose (v2 mais recente)
-curl -SL https://github.com/docker/compose/releases/download/v2.24.7/docker-compose-linux-x86_64 \
+  curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" \
     -o /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
+  chmod +x /usr/local/bin/docker-compose
+  yum install -y git
+  HOME_DIR="/home/ec2-user"
+  USERNAME="ec2-user"
+}
 
-# Clona repositório com docker-compose.yml (ou use cp se já copiou via Terraform)
-cd /home/ubuntu
-git clone https://github.com/SEU_USUARIO/n8n-on-aws.git
+# Função para instalar Docker e Compose no Ubuntu
+install_ubuntu() {
+  echo "🔧 Detecção: Ubuntu"
+  apt-get update -y
+  apt-get install -y docker.io git curl
+  systemctl start docker
+  systemctl enable docker
+  usermod -aG docker ubuntu
+
+  curl -SL https://github.com/docker/compose/releases/download/v2.24.7/docker-compose-linux-x86_64 \
+    -o /usr/local/bin/docker-compose
+  chmod +x /usr/local/bin/docker-compose
+  HOME_DIR="/home/ubuntu"
+  USERNAME="ubuntu"
+}
+
+# Detecta distribuição
+if grep -qi "Amazon Linux" /etc/os-release; then
+  install_amazon_linux
+elif grep -qi "Ubuntu" /etc/os-release; then
+  install_ubuntu
+else
+  echo "❌ Distribuição não suportada."
+  exit 1
+fi
+
+# Clonar projeto e subir Docker
+cd $HOME_DIR
+git clone https://github.com/fbignon/n8n-on-aws.git || echo "⚠️ Repositório já clonado"
 cd n8n-on-aws
-chown -R ubuntu:ubuntu /home/ubuntu/n8n-on-aws
 
-# Sobe o serviço n8n
-sudo -u ubuntu docker-compose up -d
+chown -R $USERNAME:$USERNAME $HOME_DIR/n8n-on-aws
+sudo -u $USERNAME docker-compose up -d
