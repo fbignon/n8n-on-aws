@@ -1,5 +1,8 @@
 #!/bin/bash
 
+export DEBIAN_FRONTEND=noninteractive
+
+
 # Função para instalar Docker e Compose no Amazon Linux 2
 install_amazon_linux() {
   echo "🔧 Detecção: Amazon Linux"
