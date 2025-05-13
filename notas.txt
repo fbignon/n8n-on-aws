@@ -4,12 +4,16 @@ docker build -t terraform-n8n .
 
 ./run-terraform.ps1 apply
 
-ssh -i "n8n-key.pem" ubuntu@ec2-18-191-186-43.us-east-2.compute.amazonaws.com
+ssh -i "n8n-key.pem" ubuntu@ec2-18-217-83-40.us-east-2.compute.amazonaws.com
 
 tail -f /var/log/cloud-init-output.log
 
+.\run-terraform.ps1 taint aws_instance.n8n
+.\run-terraform.ps1 apply
 
-./run-terraform.ps1 destroy
+
+.\run-terraform.ps1 destroy -auto-approve
 
 
+# Script para subir as alterações no projeto para o git
 ./git-update.ps1 "Atualiza ec2-user-data.sh e run-terraform.ps1"

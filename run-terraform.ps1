@@ -1,17 +1,17 @@
 param (
-    [string]$Command = "plan"
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$Args
 )
 
-Write-Host "Executando comando: terraform $Command"
+Write-Output "Executando comando: terraform $($Args -join ' ')"
 
-# Detectar se está no PowerShell (Windows)
 $projectPath = $PWD.Path
 $awsPath = "$env:USERPROFILE\.aws"
 
-Write-Host "Montando volume do projeto: $projectPath"
-Write-Host "Montando credenciais AWS: $awsPath"
+Write-Output "Montando volume do projeto: $projectPath"
+Write-Output "Montando credenciais AWS: $awsPath"
 
 docker run --rm -it `
-  -v "${projectPath}:/workspace" `
-  -v "${awsPath}:/root/.aws:ro" `
-  terraform-n8n $Command
+    -v "${projectPath}:/workspace" `
+    -v "${awsPath}:/root/.aws:ro" `
+    terraform-n8n $Args
