@@ -1,0 +1,11 @@
+docker build -t terraform-n8n .
+
+./run-terraform.ps1 init
+
+./run-terraform.ps1 apply
+
+ssh -i path/para/n8n-key.pem ec2-user@3.133.98.11
+
+./run-terraform.ps1 destroy
+
+

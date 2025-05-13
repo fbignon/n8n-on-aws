@@ -1,34 +1,26 @@
-# Arquivos de ambiente e credenciais
-.env
-*.pem
-*.key
-*.crt
-
-# SSH
-~/.ssh/
-id_rsa
-id_rsa.pub
-
-# Docker
-**/n8n_data/
-docker-compose.override.yml
-
 # Terraform
 *.tfstate
 *.tfstate.*
 .terraform/
-.crc
 terraform.tfvars
-terraform.tfvars.json
+
+# Docker volumes
+**/n8n_data/
+
+# AWS/SSH
+*.pem
+*.ppk
+*.key
+*.pub
 
 # Logs
 *.log
 
-# Arquivos de sistema
+# Windows/Mac
 .DS_Store
 Thumbs.db
 
-# Backup/temporários
+# Temporários
 *~
 *.bak
 *.swp
