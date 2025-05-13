@@ -25,7 +25,7 @@ resource "aws_security_group" "n8n_sg" {
 }
 
 resource "aws_instance" "n8n" {
-  ami                         = "ami-096af71d77183c8f8" # Amazon Linux 2 (região us-east-1)
+  ami                         = "ami-096af71d77183c8f8" # Amazon Linux 2 (região us-east-2)
   instance_type               = "t2.micro"
   key_name                    = aws_key_pair.deployer.key_name
   vpc_security_group_ids      = [aws_security_group.n8n_sg.id]

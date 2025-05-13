@@ -13,6 +13,6 @@ chmod +x /usr/local/bin/docker-compose
 # Clona e inicia o n8n
 cd /home/ec2-user
 yum install git -y
-git clone https://github.com/<seu-repo>/n8n-on-aws.git
+git clone https://github.com/fbignon/n8n-on-aws.git
 cd n8n-on-aws
 docker-compose up -d
