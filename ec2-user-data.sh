@@ -24,7 +24,7 @@ install_amazon_linux() {
 install_ubuntu() {
   echo "🔧 Detecção: Ubuntu"
   apt-get update -y
-  apt-get install -y docker.io git curl
+  apt-get install -y docker.io git curl s3fs
   systemctl start docker
   systemctl enable docker
   usermod -aG docker ubuntu
