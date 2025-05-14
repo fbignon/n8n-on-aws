@@ -49,12 +49,20 @@ fi
 
 # Montar bucket S3 como volume persistente
 BUCKET_NAME=n8n-volume-persistencia
+sudo usermod -aG docker ubuntu
 mkdir -p /mnt/n8n-data
+
+# Monta o bucket com as opções corretas
+s3fs $BUCKET_NAME /mnt/n8n-data \
+  -o iam_role=auto \
+  -o allow_other \
+  -o uid=1000,gid=1000 \
+  -o use_path_request_style \
+  -o url=https://s3.amazonaws.com
+
+# AGORA sim, aplique permissões no volume montado
 chown -R 1000:1000 /mnt/n8n-data
 chmod -R u+rwX /mnt/n8n-data
-echo "use IAM role instead of keys" > /dev/null  # chave omitida (IAM role usada)
-s3fs $BUCKET_NAME /mnt/n8n-data -o iam_role=auto -o allow_other -o uid=1000,gid=1000 -o use_path_request_style -o url=https://s3.amazonaws.com
-
 
 # Clonar projeto e subir Docker
 cd $HOME_DIR
