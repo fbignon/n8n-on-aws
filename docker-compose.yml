@@ -11,8 +11,8 @@ services:
     env_file:
       - .env
     volumes:
-      #- /mnt/n8n-data:/home/node/.n8n
-      - n8n_data:/home/node/.n8n
+      - /mnt/n8n-data:/home/node/.n8n
+      #- n8n_data:/home/node/.n8n
 
-volumes:
-  n8n_data:
+#volumes:
+#  n8n_data:
