@@ -49,6 +49,7 @@ fi
 # Montar bucket S3 como volume persistente
 BUCKET_NAME=n8n-volume-persistencia
 mkdir -p /mnt/n8n-data
+chown -R 1000:1000 /mnt/n8n-data
 echo "use IAM role instead of keys" > /dev/null  # chave omitida (IAM role usada)
 s3fs $BUCKET_NAME /mnt/n8n-data -o iam_role=auto -o allow_other -o use_path_request_style -o url=https://s3.amazonaws.com
 
