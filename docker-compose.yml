@@ -6,15 +6,15 @@ services:
     restart: always
     environment:
       - N8N_SECURE_COOKIE=false
-      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false
+      #- N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false
     ports:
       - "5678:5678"
     env_file:
       - .env
     volumes:
-      - /opt/n8n-data:/home/node/.n8n
+      #- /opt/n8n-data:/home/node/.n8n
       #- /mnt/n8n-data:/home/node/.n8n
-      #- n8n_data:/home/node/.n8n
+      - n8n_data:/home/node/.n8n
 
-#volumes:
-#  n8n_data:
+volumes:
+  n8n_data:

@@ -47,7 +47,7 @@ else
   exit 1
 fi
 
-
+/*
 # Montar bucket S3 como volume persistente
 BUCKET_NAME=n8n-volume-persistencia
 sudo usermod -aG docker ubuntu
@@ -64,6 +64,7 @@ sudo s3fs $BUCKET_NAME /opt/n8n-data \
 # AGORA sim, aplique permissões no volume montado
 sudo chown -R 1000:1000 /opt/n8n-data
 sudo chmod -R u+rwX /opt/n8n-data
+*/
 
 # Clonar projeto e subir Docker
 cd $HOME_DIR
