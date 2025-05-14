@@ -24,6 +24,7 @@ install_amazon_linux() {
 install_ubuntu() {
   echo "🔧 Detecção: Ubuntu"
   apt-get update -y
+  apt-get upgrade -y
   apt-get install -y docker.io git curl s3fs awscli
   systemctl start docker
   systemctl enable docker
@@ -50,10 +51,10 @@ fi
 # Montar bucket S3 como volume persistente
 BUCKET_NAME=n8n-volume-persistencia
 sudo usermod -aG docker ubuntu
-mkdir -p /mnt/n8n-data
+mkdir -p /opt/n8n-data
 
 # Monta o bucket com as opções corretas
-sudo s3fs $BUCKET_NAME /mnt/n8n-data \
+sudo s3fs $BUCKET_NAME /opt/n8n-data \
   -o iam_role=auto \
   -o allow_other \
   -o uid=1000,gid=1000 \
@@ -61,8 +62,8 @@ sudo s3fs $BUCKET_NAME /mnt/n8n-data \
   -o url=https://s3.amazonaws.com
 
 # AGORA sim, aplique permissões no volume montado
-sudo chown -R 1000:1000 /mnt/n8n-data
-sudo chmod -R u+rwX /mnt/n8n-data
+sudo chown -R 1000:1000 /opt/n8n-data
+sudo chmod -R u+rwX /opt/n8n-data
 
 # Clonar projeto e subir Docker
 cd $HOME_DIR
