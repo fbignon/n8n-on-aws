@@ -53,7 +53,7 @@ sudo usermod -aG docker ubuntu
 mkdir -p /mnt/n8n-data
 
 # Monta o bucket com as opções corretas
-s3fs $BUCKET_NAME /mnt/n8n-data \
+sudo s3fs $BUCKET_NAME /mnt/n8n-data \
   -o iam_role=auto \
   -o allow_other \
   -o uid=1000,gid=1000 \
@@ -61,8 +61,8 @@ s3fs $BUCKET_NAME /mnt/n8n-data \
   -o url=https://s3.amazonaws.com
 
 # AGORA sim, aplique permissões no volume montado
-chown -R 1000:1000 /mnt/n8n-data
-chmod -R u+rwX /mnt/n8n-data
+sudo chown -R 1000:1000 /mnt/n8n-data
+sudo chmod -R u+rwX /mnt/n8n-data
 
 # Clonar projeto e subir Docker
 cd $HOME_DIR
