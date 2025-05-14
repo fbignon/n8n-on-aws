@@ -2,6 +2,7 @@ provider "aws" {
   region = var.aws_region
 }
 
+/*
 resource "aws_s3_bucket" "n8n_data" {
   bucket = "n8n-volume-persistencia"
   force_destroy = true
@@ -59,6 +60,7 @@ resource "aws_iam_instance_profile" "n8n_instance_profile" {
   name = "n8n-instance-profile"
   role = aws_iam_role.n8n_s3_access.name
 }
+*/
 
 resource "aws_security_group" "n8n_sg" {
   name        = local.security_group_name
@@ -100,7 +102,7 @@ resource "aws_instance" "n8n" {
   vpc_security_group_ids      = [aws_security_group.n8n_sg.id]
   associate_public_ip_address = true
   user_data                   = file("${path.module}/../ec2-user-data.sh")
-  iam_instance_profile        = aws_iam_instance_profile.n8n_instance_profile.name
+  #iam_instance_profile        = aws_iam_instance_profile.n8n_instance_profile.name
 
   tags = merge(
     {
