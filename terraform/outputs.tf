@@ -3,6 +3,17 @@ output "n8n_url" {
 }
 
 output "n8n_elastic_ip" {
-  value = aws_eip.n8n_eip.public_ip
-  description = "Elastic IP público associado ao n8n"
+  description = "Elastic IP público associado ao n8n. Configure seu DNS para apontar este IP para n8n.globalstorebr.com"
+  value       = aws_eip.n8n_eip.public_ip
+}
+
+
+output "project_prefix" {
+  description = "Prefixo do projeto usado em nomes de recursos"
+  value       = local.project_prefix
+}
+
+output "n8n_elastic_ip_warning" {
+  value = "⚠️ Atenção: O Elastic IP NÃO será destruído automaticamente. Se você não for mais usar, libere manualmente na AWS para evitar cobranças."
+  description = "Aviso sobre cobrança do Elastic IP desassociado"
 }

@@ -87,3 +87,12 @@ fi
 
 # Subir o contêiner n8n
 sudo -u $USERNAME docker-compose up -d
+
+# === Adiciona cron job para renovar o certificado HTTPS a cada 2 dias ===
+(crontab -l 2>/dev/null; echo "0 3 */2 * * docker run --rm \
+  -v $HOME_DIR/n8n-on-aws/nginx/certbot/conf:/etc/letsencrypt \
+  -v $HOME_DIR/n8n-on-aws/nginx/certbot/www:/var/www/certbot \
+  certbot/certbot renew --webroot --webroot-path=/var/www/certbot && \
+  docker exec nginx nginx -s reload") | crontab -
+
+echo '🕒 Cron job para renovação automática de certificado configurado.'
