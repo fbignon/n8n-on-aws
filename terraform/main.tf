@@ -2,6 +2,19 @@ provider "aws" {
   region = var.aws_region
 }
 
+resource "aws_eip" "n8n_eip" {
+  instance = aws_instance.n8n.id
+  vpc      = true
+
+  tags = merge(
+    {
+      Name = "${local.project_prefix}-eip"
+    },
+    local.common_tags
+  )
+}
+
+
 /*
 resource "aws_s3_bucket" "n8n_data" {
   bucket = "n8n-volume-persistencia"

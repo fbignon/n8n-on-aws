@@ -1,23 +1,48 @@
-version: "3.8"
+version: '3.8'
 
 services:
   n8n:
     image: n8nio/n8n
     restart: always
     environment:
-      - N8N_SECURE_COOKIE=false
+      - N8N_HOST=n8n.globalstorebr.com
+      - N8N_PORT=443
+      - N8N_PROTOCOL=https
+      - WEBHOOK_TUNNEL_URL=https://n8n.globalstorebr.com/
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD=Admin123
-      #- N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false
+      - N8N_BASIC_AUTH_PASSWORD=admin123
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
     ports:
       - "5678:5678"
-    env_file:
-      - .env
     volumes:
-      #- /opt/n8n-data:/home/node/.n8n
-      #- /mnt/n8n-data:/home/node/.n8n
       - n8n_data:/home/node/.n8n
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    entrypoint: ""
+    command: >
+      sh -c "certbot certonly --webroot
+        --webroot-path=/var/www/certbot
+        --email sales@globalstorebr.com
+        --agree-tos
+        --no-eff-email
+        -d n8n.globalstorebr.com"
 
 volumes:
   n8n_data:

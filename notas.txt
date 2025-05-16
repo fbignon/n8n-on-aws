@@ -1,19 +1,29 @@
+# Criar o container docker do terraform
 docker build -t terraform-n8n .
 
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+# Colocar suas credenciais da AWS
+aws configure
 
+# Comando para sincronizar as credenciais do terraform com a AWS
 ./run-terraform.ps1 init
 
+# Comando para criar a instancia
 ./run-terraform.ps1 apply
 
-ssh -i "n8n-key.pem" ubuntu@ec2-18-191-208-97.us-east-2.compute.amazonaws.com
+# Comando para fazer o login na instância criada (pegar o DSN publico no console da AWS)
+# gerar o n8n-key.pem pelo console (EC2 --> key pair)
+ssh -i "n8n-key.pem" ubuntu@ec2-18-222-109-64.us-east-2.compute.amazonaws.com
 
 tail -f /var/log/cloud-init-output.log
 
+# Comando para atualizar a instancia e ja faz o destroy automático
 .\run-terraform.ps1 taint aws_instance.n8n
 .\run-terraform.ps1 apply
 
+#Comando para ver o output novamente
+.\run-terraform.ps1 output
 
+# Comando para destruir a instancia
 .\run-terraform.ps1 destroy -auto-approve
 
 
@@ -22,10 +32,14 @@ tail -f /var/log/cloud-init-output.log
 
 =============================================================
 # Logs de erro do app
+sudo usermod -aG docker ubuntu
+---> faça o logout
 docker logs $(docker ps -q --filter name=n8n)
+
 
 # Verifica se o volume está montado
 mount | grep s3fs
+ls -ld /mnt/n8n-data
 
 # Verifica se a Role está aplicada
 curl http://169.254.169.254/latest/meta-data/iam/info
@@ -33,4 +47,15 @@ aws sts get-caller-identity
 
 # Verifica se há erros no boot
 cat /var/log/cloud-init-output.log
+
+
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+================================================
+=========           BACKUP          ============
+================================================
+
+python.exe -m pip install --upgrade pip
+pip install -r requirements.txt
+python backup.py
 

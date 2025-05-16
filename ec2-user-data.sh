@@ -72,4 +72,18 @@ git clone https://github.com/fbignon/n8n-on-aws.git || echo "⚠️ Repositório
 cd n8n-on-aws
 
 chown -R $USERNAME:$USERNAME $HOME_DIR/n8n-on-aws
+
+# === Restaurar backup local se encontrado ===
+BACKUP_FILE=$(ls $HOME_DIR/n8n-backup_*.tar.gz 2>/dev/null | tail -n 1)
+
+if [ -f "$BACKUP_FILE" ]; then
+  echo "🔁 Backup encontrado: $BACKUP_FILE"
+  docker volume create n8n_data
+  docker run --rm -v n8n_data:/data -v $HOME_DIR:/backup alpine \
+    sh -c "tar -xzf /backup/$(basename $BACKUP_FILE) -C /data"
+else
+  echo "⚠️ Nenhum backup encontrado em $HOME_DIR"
+fi
+
+# Subir o contêiner n8n
 sudo -u $USERNAME docker-compose up -d
