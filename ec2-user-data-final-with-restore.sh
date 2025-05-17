@@ -10,7 +10,7 @@ HOME_DIR="/home/$USERNAME"
 apt update -y
 
 # Instala Docker e Docker Compose
-apt install -y docker.io git curl cron s3fs awscli
+apt install -y docker.io git curl cron s3fs awscli certbot python3-certbot-nginx
 usermod -aG docker $USERNAME
 systemctl start docker
 systemctl enable docker
