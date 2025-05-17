@@ -12,7 +12,7 @@ aws configure
 
 # Comando para fazer o login na instância criada (pegar o DSN publico no console da AWS)
 # gerar o n8n-key.pem pelo console (EC2 --> key pair)
-ssh -i "n8n-key.pem" ubuntu@ec2-18-222-109-64.us-east-2.compute.amazonaws.com
+ssh -i "n8n-key.pem" ubuntu@ec2-3-133-199-20.us-east-2.compute.amazonaws.com
 
 tail -f /var/log/cloud-init-output.log
 
@@ -59,3 +59,16 @@ python.exe -m pip install --upgrade pip
 pip install -r requirements.txt
 python backup.py
 
+
+
+
+./menu-n8n.ps1
+
+1. Terraform Init
+2. Terraform Apply
+3. Terraform Destroy
+4. Backup Volume
+5. Restore Último Backup
+6. Ver Outputs do Terraform
+7. Liberar Elastic IP
+0. Sair

@@ -1,0 +1,90 @@
+# Verifica a política efetiva de execução do PowerShell
+$effectivePolicy = Get-ExecutionPolicy -Scope Process
+if ($effectivePolicy -eq "Undefined") {
+  $effectivePolicy = Get-ExecutionPolicy
+}
+
+if ($effectivePolicy -eq "Restricted") {
+  Write-Host "`n⚠️ Sua política de execução está bloqueando scripts (.ps1)."
+  Write-Host "Para liberar temporariamente, execute no PowerShell:"
+  Write-Host ""
+  Write-Host "    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass"
+  Write-Host ""
+  Write-Host "Depois, execute novamente:"
+  Write-Host "    ./menu-n8n.ps1`n"
+  exit
+}
+
+# Garante que o script de liberar EIP está desbloqueado
+if (Test-Path "./destroy_eip_from_tf.ps1") {
+  Unblock-File -Path "./destroy_eip_from_tf.ps1" -ErrorAction SilentlyContinue
+}
+
+Write-Host "==============================="
+Write-Host "  n8n-on-aws - Menu Principal"
+Write-Host "==============================="
+Write-Host ""
+Write-Host "1. Terraform Init"
+Write-Host "2. Terraform Apply"
+Write-Host "3. Terraform Destroy"
+Write-Host "4. Backup Volume"
+Write-Host "5. Restaurar Ultimo Backup"
+Write-Host "6. Ver Outputs do Terraform"
+Write-Host "7. Liberar Elastic IP"
+Write-Host "0. Sair"
+Write-Host ""
+
+$option = Read-Host "Escolha uma opcao"
+
+switch ($option) {
+  "1" {
+    ./run-terraform.ps1 init
+  }
+  "2" {
+    ./run-terraform.ps1 apply
+  }
+  "3" {
+    Write-Host "Buscando recursos no Terraform state para destruir (exceto EIP protegido)..."
+
+    $stateRaw = ./run-terraform.ps1 state list
+    $targets = $stateRaw | Where-Object { $_ -match '^aws_' -and $_ -notmatch '^aws_eip' }
+
+
+    if ($targets.Count -eq 0) {
+      Write-Host "Nada a destruir (exceto Elastic IP protegido)."
+    } else {
+      $targetArgs = $targets | ForEach-Object { "-target=$_" } | Out-String
+      $targetArgs = $targetArgs -replace "\r?\n", " "
+      $command = "destroy $targetArgs -auto-approve"
+      Write-Host "`nExecutando: terraform $command`n"
+      ./run-terraform.ps1 $command
+    }
+  }
+  "4" {
+    $currentPath = Get-Location
+    $timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm"
+    docker run --rm -v n8n_data:/data -v "${currentPath}:/backup" alpine sh -c "tar -czf /backup/n8n_backup_${timestamp}.tar.gz -C /data ."
+  }
+  "5" {
+    $currentPath = Get-Location
+    $latest = Get-ChildItem -Path $currentPath -Filter "n8n_backup_*.tar.gz" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    if ($null -ne $latest) {
+      docker run --rm -v n8n_data:/data -v "${currentPath}:/backup" alpine sh -c "rm -rf /data/*; tar -xzf /backup/$($latest.Name) -C /data"
+    } else {
+      Write-Host "`nNenhum backup encontrado."
+    }
+  }
+  "6" {
+    ./run-terraform.ps1 output
+  }
+  "7" {
+    Write-Host "`nLiberando Elastic IP com seguranca...`n"
+    ./destroy_eip_from_tf.ps1
+  }
+  "0" {
+    Write-Host "`nSaindo..."
+  }
+  default {
+    Write-Host "`nOpcao invalida."
+  }
+}

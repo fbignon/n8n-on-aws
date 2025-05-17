@@ -14,4 +14,4 @@ Write-Output "Montando credenciais AWS: $awsPath"
 docker run --rm -it `
     -v "${projectPath}:/workspace" `
     -v "${awsPath}:/root/.aws:ro" `
-    terraform-n8n $Args
+    terraform-n8n @Args

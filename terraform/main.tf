@@ -2,18 +2,6 @@ provider "aws" {
   region = var.aws_region
 }
 
-resource "aws_eip" "n8n_eip" {
-  instance = aws_instance.n8n.id
-  vpc      = true
-
-  tags = merge(
-    {
-      Name = "${local.project_prefix}-eip"
-    },
-    local.common_tags
-  )
-}
-
 
 /*
 resource "aws_s3_bucket" "n8n_data" {
@@ -114,7 +102,7 @@ resource "aws_instance" "n8n" {
   key_name                    = "n8n-key" # Criada no console AWS
   vpc_security_group_ids      = [aws_security_group.n8n_sg.id]
   associate_public_ip_address = true
-  user_data                   = file("${path.module}/../ec2-user-data.sh")
+  user_data                   = file("${path.module}/../ec2-user-data-final-with-restore.sh")
   #iam_instance_profile        = aws_iam_instance_profile.n8n_instance_profile.name
 
   tags = merge(

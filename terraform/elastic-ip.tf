@@ -1,5 +1,5 @@
 resource "aws_eip" "n8n_eip" {
-  vpc = true
+  domain = "vpc"
 
   tags = merge(
     {
@@ -7,4 +7,7 @@ resource "aws_eip" "n8n_eip" {
     },
     local.common_tags
   )
+    lifecycle {
+    prevent_destroy = true
+  }
 }

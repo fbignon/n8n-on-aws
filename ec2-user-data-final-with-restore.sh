@@ -1,18 +1,24 @@
 #!/bin/bash
 set -e
+export DEBIAN_FRONTEND=noninteractive
 
 USERNAME=ubuntu
 HOME_DIR="/home/$USERNAME"
 
 # Atualiza pacotes
-apt update -y && apt upgrade -y
+#apt update -y && apt upgrade -y
+apt update -y
 
 # Instala Docker e Docker Compose
-apt install -y docker.io git curl cron
+apt install -y docker.io git curl cron s3fs awscli
 usermod -aG docker $USERNAME
 systemctl start docker
 systemctl enable docker
 usermod -aG docker ubuntu
+# Instalar docker-compose (versão compatível com docker 20.10+)
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
 
 
 # Cria estrutura de diretórios
@@ -42,12 +48,12 @@ else
 fi
 
 # Gera certificados com certbot (vai falhar se o DNS não estiver propagado)
-docker-compose -f docker-compose-https.yml up -d nginx
+sudo -u $USERNAME docker-compose -f docker-compose-https.yml up -d nginx
 sleep 10
 docker run --rm -v $PWD/nginx/certbot/conf:/etc/letsencrypt -v $PWD/nginx/certbot/www:/var/www/certbot certbot/certbot certonly --webroot --webroot-path=/var/www/certbot --email contato@globalstorebr.com --agree-tos --no-eff-email -d n8n.globalstorebr.com || echo "⚠️ Certbot falhou, possivelmente DNS ainda não propagou."
 
 # Sobe os serviços com HTTPS
-docker-compose -f docker-compose-https.yml up -d
+sudo -u $USERNAME docker-compose -f docker-compose-https.yml up -d
 
 # === Cron job para renovação automática do certificado ===
 (crontab -l 2>/dev/null; echo "0 3 */2 * * docker run --rm \
