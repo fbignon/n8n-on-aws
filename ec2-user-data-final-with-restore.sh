@@ -9,9 +9,13 @@ HOME_DIR="/home/$USERNAME"
 #apt update -y && apt upgrade -y
 apt update -y
 
+# Desativa nginx nativo da instância (evita conflito com container nginx)
+sudo systemctl stop nginx
+sudo systemctl disable nginx
+
 # Instala Docker e Docker Compose
 apt install -y docker.io git curl cron s3fs awscli certbot python3-certbot-nginx
-usermod -aG docker $USERNAME
+sudo usermod -aG docker $USERNAME
 systemctl start docker
 systemctl enable docker
 usermod -aG docker ubuntu
@@ -34,6 +38,7 @@ cd n8n-on-aws
 # Cria diretórios de volume persistente e certbot
 mkdir -p nginx/certbot/conf
 mkdir -p nginx/certbot/www
+sudo mkdir -p /var/www/certbot
 
 # Cria volume nomeado
 docker volume create n8n_data
