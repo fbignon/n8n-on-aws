@@ -36,6 +36,8 @@ cd n8n-on-aws
 mkdir -p nginx/certbot/conf
 mkdir -p nginx/certbot/www
 sudo mkdir -p /var/www/certbot
+sudo chown -R ubuntu:ubuntu nginx/certbot
+
 
 # Desativa nginx nativo da instância (evita conflito com container nginx)
 sudo systemctl stop nginx
