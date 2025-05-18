@@ -11,14 +11,15 @@ apt update -y
 
 # Instala Docker e Docker Compose
 apt install -y docker.io git curl cron s3fs awscli certbot python3-certbot-nginx unzip software-properties-common
+#sudo apt install docker-compose -y
 sudo usermod -aG docker $USERNAME
 systemctl start docker
 systemctl enable docker
 usermod -aG docker ubuntu
 # Instalar docker-compose (versão compatível com docker 20.10+)
-#sudo curl -L "https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-#sudo chmod +x /usr/local/bin/docker-compose
-
+curl -SL https://github.com/docker/compose/releases/download/v2.24.7/docker-compose-linux-x86_64 \
+  -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
 
 
 # Cria estrutura de diretórios
