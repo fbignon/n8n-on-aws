@@ -3,6 +3,7 @@ version: '3.8'
 services:
   n8n:
     image: n8nio/n8n
+    container_name: n8n
     restart: always
     environment:
       - N8N_HOST=n8n.globalstorebr.com
@@ -27,13 +28,17 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/certbot:/usr/share/nginx/html
+      - /etc/letsencrypt:/etc/letsencrypt
 
   certbot:
     image: certbot/certbot
     container_name: certbot
     volumes:
       - ./nginx/certbot:/var/www/certbot
-      - /etc/letsencrypt:/etc/letsencrypt
+      - ./nginx/certbot:/usr/share/nginx/html
+      - ./nginx/certbot/etc/letsencrypt:/etc/letsencrypt
+      - ./nginx/certbot/var/lib/letsencrypt:/var/lib/letsencrypt
+      - ./nginx/certbot/var/log:/var/log/letsencrypt
     entrypoint: ""
     command: >
       sh -c "certbot certonly --webroot
