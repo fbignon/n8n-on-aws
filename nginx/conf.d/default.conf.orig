@@ -8,6 +8,18 @@ server {
     }
 
     location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name n8n.globalstorebr.com;
+
+    ssl_certificate /etc/letsencrypt/live/n8n.globalstorebr.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/n8n.globalstorebr.com/privkey.pem;
+
+    location / {
         proxy_pass http://n8n:5678;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
