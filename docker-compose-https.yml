@@ -27,17 +27,16 @@ services:
       - "443:443"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./nginx/certbot:/usr/share/nginx/html
+      - ./nginx/certbot/www:/usr/share/nginx/html
       - ./nginx/certbot/etc/letsencrypt:/etc/letsencrypt
 
   certbot:
     image: certbot/certbot
     container_name: certbot
     volumes:
-      - ./nginx/certbot:/var/www/certbot
-      - ./nginx/certbot:/usr/share/nginx/html
+      - ./nginx/certbot/www:/var/www/certbot
       - ./nginx/certbot/etc/letsencrypt:/etc/letsencrypt
-      - ./nginx/certbot/var/lib/letsencrypt:/var/lib/letsencrypt
+      - ./nginx/certbot/var/lib:/var/lib/letsencrypt
       - ./nginx/certbot/var/log:/var/log/letsencrypt
     entrypoint: ""
     command: >
