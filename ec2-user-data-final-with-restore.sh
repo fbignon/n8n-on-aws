@@ -58,7 +58,11 @@ fi
 
 # Sobe o nginx temporariamente para obter certificado
 sudo -u $USERNAME docker-compose -f docker-compose-https.yml up -d nginx
-sleep 10
+sleep 20
+
+cp ./nginx/conf.d/default.conf.nossl ./nginx/conf.d/default.conf
+docker-compose -f docker-compose-https.yml up -d nginx
+sleep 20
 
 # Executa certbot (gera certificado)
 docker run --rm \
@@ -70,6 +74,12 @@ docker run --rm \
 
 # Sobe tudo com HTTPS (nginx + n8n)
 sudo -u $USERNAME docker-compose -f docker-compose-https.yml up -d
+sleep 20
+
+# Subir tudo normalmente (nginx com SSL + n8n + certbot)
+cp ./nginx/conf.d/default.conf.ssl ./nginx/conf.d/default.conf
+docker-compose -f docker-compose-https.yml down
+docker-compose -f docker-compose-https.yml up -d --force-recreate
 
 # === Cronjob para renovar automaticamente ===
 (crontab -l 2>/dev/null; echo "0 3 */2 * * docker run --rm \
