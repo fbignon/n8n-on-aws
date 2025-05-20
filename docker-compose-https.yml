@@ -8,6 +8,7 @@ services:
     environment:
       - N8N_HOST=n8n.globalstorebr.com
       - N8N_PORT=5678
+      - N8N_PUSH_BACKEND=sse
       - N8N_PROTOCOL=https
       - WEBHOOK_TUNNEL_URL=https://n8n.globalstorebr.com/
       - N8N_BASIC_AUTH_ACTIVE=true
