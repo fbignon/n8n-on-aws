@@ -34,6 +34,7 @@ do {
   Write-Host "6. Ver Outputs do Terraform"
   Write-Host "7. Liberar Elastic IP"
   Write-Host "8. Gerar comando para conexao remota"
+  Write-Host "9. Backup via API (Python Script)"
   Write-Host "0. Sair`n"
   $option = Read-Host "Escolha uma opcao"
 
@@ -63,8 +64,13 @@ do {
 
 
     "4" {
-      docker run --rm -v n8n_data:/data -v ${PWD}:/backup alpine `
-        sh -c "tar -czf /backup/n8n-backup-$(date +%Y%m%d-%H%M%S).tar.gz -C /data ."
+      if (-not (Test-Path "${PWD}\backups")) {
+        New-Item -ItemType Directory -Path "${PWD}\backups"
+      }
+
+      $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+      docker run --rm --volumes-from n8n -v "${PWD}\backups:/backup" alpine \
+      sh -c "tar -czf /backup/n8n-backup-$timestamp.tar.gz -C /home/node .n8n"
     }
 
     "5" {
@@ -109,9 +115,11 @@ do {
       Pause
 }
 
-
-
-    "0" { break }
+    "9" {
+            Write-Host "Executando backup via Python (API REST)..."
+            python ./backup_n8n/backup.py
+            Pause
+        }
 
     default { Write-Host "`n❌ Opção inválida, tente novamente.`n" }
   }
@@ -119,4 +127,4 @@ do {
   Write-Host "`n"
   Pause
   Clear-Host
-} while ($true)
+} while ($option -ne "0")
