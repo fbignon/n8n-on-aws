@@ -35,6 +35,7 @@ do {
   Write-Host "7. Liberar Elastic IP"
   Write-Host "8. Gerar comando para conexao remota"
   Write-Host "9. Backup via API (Python Script)"
+  Write-Host "10. Restaurar Backup via API (Python Script)"
   Write-Host "0. Sair`n"
   $option = Read-Host "Escolha uma opcao"
 
@@ -60,7 +61,7 @@ do {
       }
 
       Pause
-}
+    }
 
 
     "4" {
@@ -113,13 +114,18 @@ do {
       }
 
       Pause
-}
+    }
 
     "9" {
-            Write-Host "Executando backup via Python (API REST)..."
-            python ./backup_n8n/backup.py
-            Pause
-        }
+      Write-Host "Executando backup via Python (API REST)..."
+      python ./backup_n8n/backup.py
+      Pause
+    }
+
+    "10" {
+      Write-Host "Executando restore via Python (API REST)..."
+      & python ./backup_n8n/restore.py
+    }
 
     default { Write-Host "`n❌ Opção inválida, tente novamente.`n" }
   }

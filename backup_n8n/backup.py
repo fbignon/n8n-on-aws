@@ -1,28 +1,40 @@
-import requests
+import json
 import os
+import datetime
+import requests
 from dotenv import load_dotenv
-from datetime import datetime
 
 load_dotenv()
-url = os.getenv("N8N_URL")
-user = os.getenv("N8N_USER")
-pwd = os.getenv("N8N_PASS")
 
-auth = (user, pwd)
+N8N_HOST = os.getenv("N8N_API_URL")
+N8N_API_KEY = os.getenv("N8N_API_KEY")
+BACKUP_DIR = "./backup_n8n/backups"
 
-res = requests.get(f"{url}/rest/workflows", auth=auth)
-res.raise_for_status()
-workflows = res.json()["data"]
+os.makedirs(BACKUP_DIR, exist_ok=True)
 
-timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
-backup_dir = f"n8n_backup_{timestamp}"
-os.makedirs(backup_dir, exist_ok=True)
+headers = {
+    "X-N8N-API-KEY": N8N_API_KEY,
+    "accept": "application/json"
+}
 
-for wf in workflows:
-    wf_id = wf["id"]
-    wf_name = wf["name"].replace(" ", "_")
-    wf_data = requests.get(f"{url}/rest/workflows/{wf_id}", auth=auth).json()
-    with open(f"{backup_dir}/{wf_id}_{wf_name}.json", "w", encoding="utf-8") as f:
-        f.write(requests.utils.json.dumps(wf_data, indent=2))
+print("Executando backup via API REST...")
 
-print(f"✅ Backup completo: {len(workflows)} workflows salvos em ./{backup_dir}")
+try:
+    res = requests.get(f"{N8N_HOST}/api/v1/workflows?active=true", headers=headers)
+    res.raise_for_status()
+    workflows = res.json().get("data", [])
+except Exception as e:
+    print(f"Erro ao obter workflows: {e}")
+    exit(1)
+
+if not workflows:
+    print("Nenhum workflow ativo encontrado.")
+    exit(0)
+
+timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+backup_file = os.path.join(BACKUP_DIR, f"n8n-backup-{timestamp}.json")
+
+with open(backup_file, 'w', encoding='utf-8') as f:
+    json.dump(workflows, f, ensure_ascii=False, indent=2)
+
+print(f"Backup concluído com sucesso: {backup_file}")
