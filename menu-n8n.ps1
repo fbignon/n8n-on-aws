@@ -29,13 +29,11 @@ do {
   Write-Host "1. Terraform Init"
   Write-Host "2. Terraform Apply"
   Write-Host "3. Terraform Destroy"
-  Write-Host "4. Backup Volume"
-  Write-Host "5. Restaurar Ultimo Backup"
-  Write-Host "6. Ver Outputs do Terraform"
-  Write-Host "7. Liberar Elastic IP"
-  Write-Host "8. Gerar comando para conexao remota"
-  Write-Host "9. Backup via API (Python Script)"
-  Write-Host "10. Restaurar Backup via API (Python Script)"
+  Write-Host "4. Ver Outputs do Terraform"
+  Write-Host "5. Liberar Elastic IP"
+  Write-Host "6. Gerar comando para conexao remota"
+  Write-Host "7. Backup via API (Python Script)"
+  Write-Host "8. Restaurar Backup via API (Python Script)"
   Write-Host "0. Sair`n"
   $option = Read-Host "Escolha uma opcao"
 
@@ -63,37 +61,15 @@ do {
       Pause
     }
 
-
-    "4" {
-      if (-not (Test-Path "${PWD}\backups")) {
-        New-Item -ItemType Directory -Path "${PWD}\backups"
-      }
-
-      $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-      docker run --rm --volumes-from n8n -v "${PWD}\backups:/backup" alpine \
-      sh -c "tar -czf /backup/n8n-backup-$timestamp.tar.gz -C /home/node .n8n"
-    }
+    "4" { ./run-terraform.ps1 output }
 
     "5" {
-      $latest = Get-ChildItem -Path . -Filter "n8n-backup-*.tar.gz" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-      if ($latest) {
-        docker run --rm -v n8n_data:/data -v ${PWD}:/backup alpine `
-          sh -c "rm -rf /data/* && tar -xzf /backup/$($latest.Name) -C /data"
-        Write-Host "`n✅ Backup restaurado: $($latest.Name)`n"
-      } else {
-        Write-Host "`n❌ Nenhum backup encontrado.`n"
-      }
-    }
-
-    "6" { ./run-terraform.ps1 output }
-
-    "7" {
       Write-Host "Liberando Elastic IP com segurança..."
       ./destroy_eip_from_tf.ps1
     }
 
 
-    "8" {
+    "6" {
       Write-Host "`n🔐 Corrigindo erro SSH (known_hosts)..."
 
       # Executa o script e filtra apenas a linha com IP válido
@@ -116,13 +92,13 @@ do {
       Pause
     }
 
-    "9" {
+    "7" {
       Write-Host "Executando backup via Python (API REST)..."
       python ./backup_n8n/backup.py
       Pause
     }
 
-    "10" {
+    "8" {
       Write-Host "Executando restore via Python (API REST)..."
       & python ./backup_n8n/restore.py
     }
