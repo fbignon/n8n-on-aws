@@ -27,3 +27,6 @@ Thumbs.db
 *.swp
 *.bkp
 *.old
+
+# Sensíveis
+./backup_n8n/.env

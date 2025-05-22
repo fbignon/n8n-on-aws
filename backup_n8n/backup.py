@@ -4,6 +4,9 @@ import datetime
 import requests
 from dotenv import load_dotenv
 
+if not os.path.exists('.env'):
+    print("⚠️ Arquivo .env não encontrado. Por favor, configure conforme o .env.example")
+
 load_dotenv()
 
 N8N_HOST = os.getenv("N8N_API_URL")

@@ -4,6 +4,10 @@ import requests
 from dotenv import load_dotenv
 
 # Carregar variáveis do .env
+
+if not os.path.exists('.env'):
+    print("⚠️ Arquivo .env não encontrado. Por favor, configure conforme o .env.example")
+
 load_dotenv()
 
 N8N_API_KEY = os.getenv("N8N_API_KEY")
