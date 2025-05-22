@@ -29,4 +29,4 @@ Thumbs.db
 *.old
 
 # Sensíveis
-./backup_n8n/.env
+*.env

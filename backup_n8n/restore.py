@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 # Carregar variáveis do .env
 
-if not os.path.exists('.env'):
+if not os.path.exists('./backup_n8n/.env'):
     print("⚠️ Arquivo .env não encontrado. Por favor, configure conforme o .env.example")
 
 load_dotenv()
