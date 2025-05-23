@@ -91,10 +91,12 @@ do {
     "6" {
       Write-Host "`n🔐 Corrigindo erro SSH (known_hosts)..."
 
-      Get-InstanceInfo
+      # Executa o script e filtra apenas a linha com IP válido
+      $rawOutput = & "./run-terraform.ps1" output -raw n8n_elastic_ip 2>$null
+      $ip = $rawOutput | Select-String -Pattern '^\d{1,3}(\.\d{1,3}){3}$' | Select-Object -ExpandProperty Line
 
-      if ($instance_ip) {
-        $hostname = "ec2-" + ($instance_ip -replace '\.', '-') + ".us-east-2.compute.amazonaws.com"
+      if ($ip) {
+        $hostname = "ec2-" + ($ip -replace '\.', '-') + ".us-east-2.compute.amazonaws.com"
 
         Write-Host "➡️ Resetando entrada SSH: $hostname"
         ssh-keygen -R $hostname | Out-Null
@@ -124,56 +126,41 @@ do {
     Write-Host "`n🚀 Iniciando backup das credenciais via SSH..."
     
     if (Get-InstanceInfo) {
-        $container_backup = ".n8n/credentials-backup.json"
-        $remote_backup = "/home/ubuntu/credentials-backup.json"
-        $local_backup = ".\backup_n8n\backups\credentials-backup.json"
+        $remote_backup = ".n8n/credentials-backup.json"
+        $local_backup = ".\backup_n8n\credentials-backup.json"
 
-        ssh -i $key_path ubuntu@$hostname "docker exec n8n n8n export:credentials --all --output=$container_backup && docker cp n8n:/home/node/$container_backup $remote_backup"
+        ssh -i $key_path ubuntu@$hostname "docker exec n8n n8n export:credentials --all --output=$remote_backup"
 
         if ($LASTEXITCODE -eq 0) {
             scp -i $key_path ubuntu@${hostname}:$remote_backup $local_backup
             Write-Host "✅ Backup das credenciais concluído: $local_backup"
         } else {
-            Write-Host "❌ Erro ao gerar ou copiar o backup remoto."
+            Write-Host "❌ Erro ao gerar backup remoto."
         }
     }
 
     Pause
 }
 
+    "10" {
+        Write-Host "`n🚀 Iniciando restauração das credenciais via SSH..."
+        
+        if (Get-InstanceInfo) {
+            $remote_backup = ".n8n/credentials-backup.json"
+            $local_backup = ".\backup_n8n\credentials-backup.json"
 
-"10" {
-    Write-Host "`n🚀 Iniciando restauração das credenciais via SSH..."
-
-    if (Get-InstanceInfo) {
-        $container_backup = ".n8n/credentials-backup.json"
-        $remote_backup = "/home/ubuntu/credentials-backup.json"
-        $local_backup = ".\backup_n8n\backups\credentials-backup.json"
-
-        if (Test-Path $local_backup) {
-            # Envia o arquivo para a instância
             scp -i $key_path $local_backup ubuntu@${hostname}:$remote_backup
 
             if ($LASTEXITCODE -eq 0) {
-                # Move o arquivo para dentro do container e executa o import
-                ssh -i $key_path ubuntu@$hostname "docker cp $remote_backup n8n:/home/node/$container_backup && docker exec n8n n8n import:credentials --input=$container_backup"
-                
-                if ($LASTEXITCODE -eq 0) {
-                    Write-Host "✅ Restauração das credenciais concluída com sucesso!"
-                } else {
-                    Write-Host "❌ Erro ao restaurar credenciais dentro do container."
-                }
+                ssh -i $key_path ubuntu@$hostname "docker exec n8n n8n import:credentials --input=$remote_backup"
+                Write-Host "✅ Restauração concluída!"
             } else {
-                Write-Host "❌ Erro ao enviar o arquivo de backup para a instância."
+                Write-Host "❌ Erro ao copiar arquivo para a instância."
             }
-        } else {
-            Write-Host "❌ Arquivo de backup local não encontrado: $local_backup"
         }
+
+        Pause
     }
-
-    Pause
-}
-
 
 
     default { Write-Host "`n❌ Opção inválida, tente novamente.`n" }
