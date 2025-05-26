@@ -55,11 +55,11 @@ function Wait-CloudInitComplete {
                 $isComplete = $true
             } else {
                 Write-Host "⏳ Aguardando... Próxima verificação em 10 segundos..."
-                Start-Sleep -Seconds 10
+                Start-Sleep -Seconds 45
             }
         } catch {
             Write-Host "⚠️ Falha ao conectar via SSH. Tentando novamente em 10 segundos..."
-            Start-Sleep -Seconds 10
+            Start-Sleep -Seconds 45
         }
     }
 }
@@ -105,7 +105,6 @@ function Wait-CloudInitComplete {
     git rm --cached .env
     git rm --cached backup_n8n/.env
     git status
-    git add .
     git commit -m "Remove .env após deploy"
     git push
     Write-Host "✅ .env removido do Git e alterações enviadas."
