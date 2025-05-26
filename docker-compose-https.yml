@@ -6,6 +6,7 @@ services:
     container_name: n8n
     restart: always
     environment:
+      - GENERIC_TIMEZONE=America/Sao_Paulo
       - N8N_HOST=n8n.globalstorebr.com
       - N8N_PORT=5678
       - N8N_PUSH_BACKEND=sse
@@ -16,6 +17,7 @@ services:
       - N8N_BASIC_AUTH_PASSWORD=admin123
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
       - N8N_RUNNERS_ENABLED=true
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
     ports:
       - "5678:5678"
     volumes:

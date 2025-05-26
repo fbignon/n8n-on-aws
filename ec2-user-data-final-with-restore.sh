@@ -65,16 +65,16 @@ systemctl disable nginx || true
 docker volume create n8n_data
 
 # === Restauração de backup (se houver) ===
-echo "###################################################"
-echo "🚀 Restaurando backup..."
-echo "###################################################"
-BACKUP_FILE=$(find . -maxdepth 1 -name "n8n_backup_*.tar.gz" | sort | tail -n 1)
-if [ -f "$BACKUP_FILE" ]; then
-  echo "🟡 Backup encontrado: $BACKUP_FILE"
-  docker run --rm -v n8n_data:/data -v $PWD:/backup alpine sh -c "rm -rf /data/* && tar -xzf /backup/$(basename $BACKUP_FILE) -C /data"
-else
-  echo "⚠️ Nenhum backup encontrado para restaurar."
-fi
+#echo "###################################################"
+#echo "🚀 Restaurando backup..."
+#echo "###################################################"
+#BACKUP_FILE=$(find . -maxdepth 1 -name "n8n_backup_*.tar.gz" | sort | tail -n 1)
+#if [ -f "$BACKUP_FILE" ]; then
+#  echo "🟡 Backup encontrado: $BACKUP_FILE"
+#  docker run --rm -v n8n_data:/data -v $PWD:/backup alpine sh -c "rm -rf /data/* && tar -xzf /backup/$(basename $BACKUP_FILE) -C /data"
+#else
+#  echo "⚠️ Nenhum backup encontrado para restaurar."
+#fi
 
 # Sobe o nginx temporariamente para obter certificado
 echo "############################################################"
