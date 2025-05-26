@@ -58,7 +58,26 @@ do {
 
   switch ($option) {
     "1" { ./run-terraform.ps1 init }
-    "2" { ./run-terraform.ps1 apply -auto-approve }
+    
+    "2" {
+    Write-Host "`n🚀 Executando Terraform Apply..."
+    ./run-terraform.ps1 apply  -auto-approve
+
+    Write-Host "`n✅ Terraform Apply concluído."
+
+    # Remove o .env do git após o deploy
+    Write-Host "`n🧹 Removendo .env do controle de versão..."
+    git rm --cached .env -ErrorAction SilentlyContinue
+    git rm --cached backup_n8n/.env -ErrorAction SilentlyContinue
+    git status
+    git commit -m "Remove .env após deploy"
+    git push origin main
+
+    Write-Host "`n✅ .env removido do Git e alterações enviadas."
+
+    Pause
+}
+
 
     "3" {
       Write-Host "🔍 Buscando recursos no Terraform state para destruir (exceto EIP protegido)..."
