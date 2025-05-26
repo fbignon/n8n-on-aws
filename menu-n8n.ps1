@@ -39,7 +39,32 @@ do {
     return $true
 }
 
+function Wait-CloudInitComplete {
+    Get-InstanceInfo
+
+    Write-Host "`n🕐 Aguardando inicialização completa da instância EC2..."
+
+    $isComplete = $false
+
+    while (-not $isComplete) {
+        try {
+            $logContent = ssh -o StrictHostKeyChecking=no -i $key_path ubuntu@$hostname "tail -n 20 /var/log/cloud-init-output.log" 2>$null
+
+            if ($logContent -match "Cloud-init v.*finished at") {
+                Write-Host "✅ Cloud-init finalizado com sucesso!"
+                $isComplete = $true
+            } else {
+                Write-Host "⏳ Aguardando... Próxima verificação em 10 segundos..."
+                Start-Sleep -Seconds 10
+            }
+        } catch {
+            Write-Host "⚠️ Falha ao conectar via SSH. Tentando novamente em 10 segundos..."
+            Start-Sleep -Seconds 10
+        }
+    }
+}
   
+
   Write-Host "==============================="
   Write-Host "  n8n-on-aws - Menu Principal"
   Write-Host "===============================`n"
@@ -60,21 +85,30 @@ do {
     "1" { ./run-terraform.ps1 init }
     
     "2" {
+    # Insere o .env no git antes do deploy
+    Write-Host "`n🧹 Inserindo .env no controle de versão..."
+    git status
+    git add .
+    git commit -m "Insere .env no deploy"
+    git push origin main
+
     Write-Host "`n🚀 Executando Terraform Apply..."
     ./run-terraform.ps1 apply  -auto-approve
 
     Write-Host "`n✅ Terraform Apply concluído."
 
-    # Remove o .env do git após o deploy
+    # Aguarda Cloud-init finalizar
+    Wait-CloudInitComplete -ip $instance_ip -key_path $key_path
+
+    # Após a instância estar 100% operacional, remove o .env do git
     Write-Host "`n🧹 Removendo .env do controle de versão..."
-    git rm --cached .env -ErrorAction SilentlyContinue
-    git rm --cached backup_n8n/.env -ErrorAction SilentlyContinue
+    git rm --cached .env
+    git rm --cached backup_n8n/.env
     git status
+    git add .
     git commit -m "Remove .env após deploy"
-    git push origin main
-
-    Write-Host "`n✅ .env removido do Git e alterações enviadas."
-
+    git push
+    Write-Host "✅ .env removido do Git e alterações enviadas."
     Pause
 }
 
