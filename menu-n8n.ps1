@@ -54,12 +54,12 @@ function Wait-CloudInitComplete {
                 Write-Host "✅ Cloud-init finalizado com sucesso!"
                 $isComplete = $true
             } else {
-                Write-Host "⏳ Aguardando... Próxima verificação em 10 segundos..."
-                Start-Sleep -Seconds 45
+                Write-Host "⏳ Aguardando... Próxima verificação em 60 segundos..."
+                Start-Sleep -Seconds 60
             }
         } catch {
-            Write-Host "⚠️ Falha ao conectar via SSH. Tentando novamente em 10 segundos..."
-            Start-Sleep -Seconds 45
+            Write-Host "⚠️ Falha ao conectar via SSH. Tentando novamente em 60 segundos..."
+            Start-Sleep -Seconds 60
         }
     }
 }
