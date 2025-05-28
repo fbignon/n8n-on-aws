@@ -8,6 +8,6 @@ output "n8n_elastic_ip" {
 }
 
 output "n8n_elastic_ip_warning" {
-  value = "⚠️ Atenção: O Elastic IP NÃO será destruído automaticamente. Se você não for mais usar, libere manualmente na AWS para evitar cobranças."
+  value = "⚠️⚠️⚠️⚠️⚠️   Atenção: O Elastic IP NÃO será destruído automaticamente. Se você não for mais usar, libere manualmente na AWS para evitar cobranças. ⚠️⚠️⚠️⚠️⚠️"
   description = "Aviso sobre cobrança do Elastic IP desassociado"
 }
